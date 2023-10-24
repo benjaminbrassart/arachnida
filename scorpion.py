@@ -30,4 +30,5 @@ def main(argv: list[str]) -> int:
     for file_name in args:
         display_info(file_name)
 
-exit(main(sys.argv))
+if __name__ == "__main__":
+    exit(main(sys.argv))

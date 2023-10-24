@@ -194,4 +194,5 @@ def main(args: list[str]) -> int:
 
     return 0
 
-exit(main(sys.argv))
+if __name__ == "__main__":
+    exit(main(sys.argv))
