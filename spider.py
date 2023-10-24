@@ -14,12 +14,13 @@ class Spider:
         self.url = None
         self.recursive = False
         self.depth = 5
+        self.verbose = False
         self.path = "./data"
         self.visited = set[str]()
         self.to_visit = list[str]()
 
     def usage():
-        print("Usage: spider [-r] [-p <path>] [-l <depth>] <url>", file=sys.stderr)
+        print("Usage: spider [-r] [-v] [-p <path>] [-l <depth>] <url>", file=sys.stderr)
 
     def get_option_parameter(it: Iterator[str], ch_it: Iterator[str], opt_ch: str) -> str:
         if (ch := next(ch_it, None)) is None: # option argument stop here
@@ -54,6 +55,8 @@ class Spider:
                     self.depth = depth
                 case 'p':
                     self.path = Spider.get_option_parameter(it, chars, ch)
+                case 'v':
+                    self.verbose = True
                 case _:
                     raise Exception(f"unknown option -- '{ch}'")
 
@@ -105,10 +108,12 @@ class Spider:
 
 
         with out_path.open("wb") as f:
-            print(f"Downloading: {out_path}")
+            if self.verbose:
+                print(f"Downloading: {out_path}")
             for b in res.iter_content(chunk_size=None):
                 f.write(b)
-            print(f"Done")
+            if self.verbose:
+                print(f"Done")
 
     DEFAULT_CONTENT_TYPE = "text/plain"
     CONTENT_TYPE_REGEX = r"^([^;]+)"
@@ -130,14 +135,15 @@ class Spider:
         except requests.exceptions.RequestException:
             return
 
+        self.visited.add(url)
+
         if not r.ok:
             return
 
-        print(f"Visiting: {url}")
+        if self.verbose:
+            print(f"Visiting: {url}")
 
         content_type = Spider.get_mime_type(r.headers.get("Content-Type", None))
-
-        self.visited.add(url)
 
         if content_type in Spider.HTML_MIME_TYPES:
             self.visit_html(url, r)
@@ -184,7 +190,7 @@ def main(args: list[str]) -> int:
         pass
     except Exception as e:
         print(f"spider: error: {e}", file=sys.stderr)
-        raise e
+        return 1
 
     return 0
 
