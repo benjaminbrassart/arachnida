@@ -11,6 +11,9 @@ class Spider:
         self.depth = 5
         self.path = "./data"
 
+    def usage():
+        print("Usage: spider [-r] [-p <path>] [-l <depth>] <url>", file=sys.stderr)
+
     def get_option_parameter(it: Iterator[str], ch_it: Iterator[str], opt_ch: str) -> str:
         if (ch := next(ch_it, None)) is None: # option argument stop here
             if (param := next(it, None)) is None: # no argument after option argument
@@ -71,6 +74,8 @@ def main(args: list[str]) -> int:
     try:
         spider.parse_args(args[1:])
     except Exception as e:
+        Spider.usage()
+        print()
         print(f"spider: error: {e}", file=sys.stderr)
         return 1
 
